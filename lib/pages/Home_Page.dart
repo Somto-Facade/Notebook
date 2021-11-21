@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:notebook/database/database.dart';
 import 'package:notebook/model/note_model.dart';
-import '../Notes_db_provider.dart';
 
 
 
@@ -13,9 +13,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-
-  bool isLoading = true;
-  late List<Note> noteList=[];
+  bool isLoading = false;
+  late List<Note>? noteList;
 
   @override
   void initState() {
@@ -26,18 +25,24 @@ class _HomeState extends State<Home> {
   @override
   void dispose() {
     super.dispose();
-    NotesProvider.db.close();
+    DatabaseHelper.instance.close();
   }
 
 
   void loadNotes() async{
-    setState(() {isLoading = true;});
-    this.noteList = await NotesProvider.db.getNotes();
-    setState(() {isLoading = false;});
+    setState(() {
+      isLoading = true;
+    });
+    final noteListt = await DatabaseHelper.instance.getNotes();
+    noteList = noteListt ?? [];
+    setState(() {
+      isLoading = false;
+    });
+    print(noteList);
   }
 
   void _deleteNote (int id) async{
-    var result = await NotesProvider.db.deleteNote(id);
+    var result = await DatabaseHelper.instance.deleteNote(id);
     if (result != 0){
       alertDialog('Note Deleted Successfully');
     }else {
@@ -100,6 +105,7 @@ class _HomeState extends State<Home> {
               children: <Widget>[
                 Expanded(child: Container()),
                 FloatingActionButton(
+                  heroTag: "btn1",
                   backgroundColor: Colors.grey[850],
                   onPressed: (){
                     Navigator.pushNamed(context, '/Setting');
@@ -113,15 +119,15 @@ class _HomeState extends State<Home> {
             ),
             Expanded(
               child: ListView.builder(
-                  itemCount: noteList.length,
+                  itemCount: noteList!.length,
                   itemBuilder: (_, i){
                     return Dismissible(
-                      key: ValueKey(noteList[i].noteId),
+                      key: ValueKey(noteList![i].noteId),
                       direction: DismissDirection.startToEnd,
                       confirmDismiss: (direction) async{
                         final result = await showDialog(
                             context: context,
-                            builder: (_)=>deleteDialog(noteList[i].noteId!)
+                            builder: (_)=>deleteDialog(noteList![i].noteId!)
                         );
                         return result;
                       },
@@ -134,7 +140,7 @@ class _HomeState extends State<Home> {
                         ),
                       ),
                       child: GestureDetector(
-                        onTap: (){Navigator.pushNamed(context, '/Notes', arguments: this.noteList[i]);},
+                        onTap: (){Navigator.pushNamed(context, '/Notes', arguments: this.noteList![i]);},
                         child: Container(
                           width: MediaQuery.of(context).size.width,
                           padding: const EdgeInsets.all(8.0),
@@ -149,7 +155,7 @@ class _HomeState extends State<Home> {
                               Padding(
                                 padding: const EdgeInsets.all(4.0),
                                 child: Text(
-                                  '${noteList[i].title}',
+                                  '${noteList![i].title}',
                                   style: TextStyle(
                                     color: Colors.grey[850],
                                     fontSize: 19.0,
@@ -160,7 +166,7 @@ class _HomeState extends State<Home> {
                               Padding(
                                 padding: const EdgeInsets.all(4.0),
                                 child: Text(
-                                  '${noteList[i].content}',
+                                  '${noteList![i].content}',
                                   style: TextStyle(
                                     color: Colors.grey[600],
                                     fontSize: 17.0,
@@ -171,7 +177,7 @@ class _HomeState extends State<Home> {
                               Padding(
                                 padding: const EdgeInsets.all(4.0),
                                 child: Text(
-                                  formatDateTime(noteList[i].dateUpdated),
+                                  formatDateTime(noteList![i].dateUpdated),
                                   style: TextStyle(
                                     color: Colors.grey[850],
                                     fontSize: 16.0,
@@ -192,10 +198,11 @@ class _HomeState extends State<Home> {
       ),
       floatingActionButton:
       FloatingActionButton(
+        heroTag: "btn2",
         tooltip: 'Create Note',
         backgroundColor: Colors.yellowAccent,
         onPressed: (){
-          Navigator.pushNamed(context, '/Notes', arguments: Note(noteId: null, title: '', content: '', dateUpdated: DateTime.now()));
+          Navigator.pushNamed(context, '/Notes', arguments: null);
         },
         child: Icon(
           Icons.edit,

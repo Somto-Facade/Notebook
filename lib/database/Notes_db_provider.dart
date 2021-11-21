@@ -33,14 +33,14 @@ class NotesProvider {
         join(dbpath, 'demo.db'),
         version: 1,
         onCreate: (Database database, int version) async {
-          await database.execute(
-            'CREATE TABLE $TABLE_NAME ('
-            '$COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT,'
-            '$COLUMN_TITLE TEXT,'
-            '$COLUMN_CONTENT TEXT,'
-            '$COLUMN_TIME TEXT,'
-            ')'
-          );
+          await database.execute('''
+            CREATE TABLE $TABLE_NAME (
+            $COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+            $COLUMN_TITLE TEXT NOT NULL,
+            $COLUMN_CONTENT TEXT NOT NULL,
+            $COLUMN_TIME TEXT NOT NULL
+            )
+                ''');
         }
     );
   }

@@ -1,7 +1,9 @@
 
 
 
-import 'package:notebook/Notes_db_provider.dart';
+//import 'package:notebook/Notes_db_provider.dart';
+
+import 'package:notebook/database/database.dart';
 
 class Note{
   int? noteId;
@@ -17,22 +19,22 @@ class Note{
 
   Map <String, dynamic> toMap () {
     var map = <String, dynamic>{
-      NotesProvider.COLUMN_TITLE: title,
-      NotesProvider.COLUMN_CONTENT: content,
-      NotesProvider.COLUMN_TIME: dateUpdated.toIso8601String(),
+      DatabaseHelper.COLUMN_TITLE: title,
+      DatabaseHelper.COLUMN_CONTENT: content,
+      DatabaseHelper.COLUMN_TIME: dateUpdated.toIso8601String(),
     };
 
     if (noteId!= null){
-      map[NotesProvider.COLUMN_ID]= noteId;
+      map[DatabaseHelper.COLUMN_ID]= noteId;
   }
     return map;
   }
 
   Note.fromMap (Map <String, dynamic> map) {
-    noteId = map[NotesProvider.COLUMN_ID];
-    title = map[NotesProvider.COLUMN_TITLE];
-    content = map[NotesProvider.COLUMN_CONTENT];
-    dateUpdated = DateTime.parse(map[NotesProvider.COLUMN_TIME] as String);
+    noteId = map[DatabaseHelper.COLUMN_ID];
+    title = map[DatabaseHelper.COLUMN_TITLE];
+    content = map[DatabaseHelper.COLUMN_CONTENT];
+    dateUpdated = DateTime.parse(map[DatabaseHelper.COLUMN_TIME] as String);
   }
 
 
