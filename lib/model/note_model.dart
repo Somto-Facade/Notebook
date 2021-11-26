@@ -1,8 +1,3 @@
-
-
-
-//import 'package:notebook/Notes_db_provider.dart';
-
 import 'package:notebook/database/database.dart';
 
 class Note{
@@ -34,7 +29,7 @@ class Note{
     noteId = map[DatabaseHelper.COLUMN_ID];
     title = map[DatabaseHelper.COLUMN_TITLE];
     content = map[DatabaseHelper.COLUMN_CONTENT];
-    dateUpdated = DateTime.parse(map[DatabaseHelper.COLUMN_TIME] as String);
+    dateUpdated = DateTime.parse(map[DatabaseHelper.COLUMN_TIME]);
   }
 
 

@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'package:notebook/model/note_model.dart';
 import 'package:path/path.dart';

@@ -19,12 +19,12 @@ class NotesProvider {
 
   Database? _database;
 
-  Future<Database> get database async {
+  get database async {
     if (_database != null) {
       return database;
     }
     _database = await createDB();
-    return _database!;
+    return _database;
   }
 
   Future<Database> createDB() async {

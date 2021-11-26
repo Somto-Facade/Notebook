@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:notebook/database/database.dart';
-//import 'package:notebook/Notes_db_provider.dart';
 import 'package:notebook/model/note_model.dart';
+import 'package:notebook/Provider/theme.dart';
+import 'package:provider/provider.dart';
 
 
 class Notepad extends StatefulWidget {
@@ -68,7 +69,6 @@ class _NotepadState extends State<Notepad> {
 
 
   void saveNote()async{
-    int  result;
     if (note == null){
       Note notee = Note(
         content: content,
@@ -79,12 +79,9 @@ class _NotepadState extends State<Notepad> {
        await DatabaseHelper.instance.createNote(notee);
     } else{
       await DatabaseHelper.instance.updateNote(note!);
-      setState(() {
-        isLoading = false;
-      });
     }
-    Navigator.pop(context);
-
+    Navigator.pushReplacementNamed(context, '/');
+   print(note);
   }
 
   @override
@@ -96,7 +93,7 @@ class _NotepadState extends State<Notepad> {
           child: Center(child: CircularProgressIndicator(),));
     }
     return Scaffold(
-      backgroundColor: Colors.grey[850],
+      backgroundColor:Provider.of<ToggleTheme>(context).isLightTheme? Colors.white: Colors.grey[850],
       appBar: AppBar(
         title: TextField(
           keyboardType: TextInputType.multiline,
@@ -114,7 +111,7 @@ class _NotepadState extends State<Notepad> {
           ),
           style: TextStyle(
             fontSize: 21.0,
-            color: Colors.white,
+            color:Provider.of<ToggleTheme>(context).isLightTheme? Colors.grey[850]: Colors.white,
           ),
           autocorrect: true,
           textCapitalization: TextCapitalization.words,
@@ -137,7 +134,7 @@ class _NotepadState extends State<Notepad> {
           ),
           style: TextStyle(
             fontSize: 19.0,
-            color: Colors.white,
+            color:Provider.of<ToggleTheme>(context).isLightTheme? Colors.grey[850]: Colors.white,
           ),
           autocorrect: true,
           textCapitalization: TextCapitalization.sentences,
@@ -146,7 +143,8 @@ class _NotepadState extends State<Notepad> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.yellowAccent,
         onPressed: () {saveNote(); },
-        child: Icon(Icons.save, color: Colors.grey[850],),
+        child: Icon(Icons.save,
+          color:Provider.of<ToggleTheme>(context).isLightTheme? Colors.white: Colors.grey[850],),
       ),
     );
   }

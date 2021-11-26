@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:notebook/database/database.dart';
 import 'package:notebook/model/note_model.dart';
+import 'package:notebook/pages/Popup_theme_page.dart';
+import 'package:notebook/Provider/theme.dart';
+import 'package:provider/provider.dart';
 
 
 
@@ -29,16 +32,12 @@ class _HomeState extends State<Home> {
   }
 
 
-  void loadNotes() async{
-    setState(() {
-      isLoading = true;
-    });
+  Future loadNotes() async{
     final noteListt = await DatabaseHelper.instance.getNotes();
     noteList = noteListt ?? [];
-    setState(() {
-      isLoading = false;
-    });
-    print(noteList);
+  }
+  int noteNo(){
+    return noteList!.length;
   }
 
   void _deleteNote (int id) async{
@@ -78,137 +77,213 @@ class _HomeState extends State<Home> {
   }
 
 
-  String formatDateTime(DateTime x)=> '${x.hour}:${x.minute}  ${x.toString()} ${x.day}-${x.month}-${x.year}';
+  String formatDateTime(DateTime x)=> '${x.hour}:${x.minute}    ${x.day}-${x.month}-${x.year}';
+
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[700],
-      body: isLoading? Center(child: CircularProgressIndicator() ,) : Container(
-        color: Colors.grey[850],
-        child: Column(
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 100.0, horizontal: 0.0),
-              child: Text(
-                'Notes',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 45.0,
-                  color: Colors.yellowAccent,
-                  letterSpacing: 1.5,
+    return FutureBuilder(
+      future:loadNotes(),
+      builder: (context, snapshot){
+        if(snapshot.connectionState == ConnectionState.waiting){
+          return Scaffold(
+              backgroundColor:Provider.of<ToggleTheme>(context).isLightTheme? Colors.white: Colors.grey[850],
+            body:Center(
+              child: CircularProgressIndicator()
+            )
+          );
+        }else
+          if(snapshot.error != null) {
+            return Scaffold(
+                backgroundColor:Provider.of<ToggleTheme>(context).isLightTheme? Colors.white: Colors.grey[850],
+                body: Center(
+                    child: Text('Your Notebook is not responding')
+                )
+            );
+          }else
+          if(snapshot.connectionState == ConnectionState.done){
+            if (snapshot.hasError) {
+              return Scaffold(
+                body: Center(
+                    child: Text('Your Notebook is not responding')
                 ),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                Expanded(child: Container()),
-                FloatingActionButton(
-                  heroTag: "btn1",
-                  backgroundColor: Colors.grey[850],
-                  onPressed: (){
-                    Navigator.pushNamed(context, '/Setting');
+                floatingActionButton: FloatingActionButton(
+                  heroTag: "btn2",
+                  tooltip: 'Create Note',
+                  backgroundColor: Colors.yellowAccent,
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/Notes', arguments: null);
                   },
                   child: Icon(
-                    Icons.settings,
-                    color: Colors.yellowAccent,
+                    Icons.edit,
+                    color: Colors.grey[850],
                   ),
-                )
-              ],
-            ),
-            Expanded(
-              child: ListView.builder(
-                  itemCount: noteList!.length,
-                  itemBuilder: (_, i){
-                    return Dismissible(
-                      key: ValueKey(noteList![i].noteId),
-                      direction: DismissDirection.startToEnd,
-                      confirmDismiss: (direction) async{
-                        final result = await showDialog(
-                            context: context,
-                            builder: (_)=>deleteDialog(noteList![i].noteId!)
-                        );
-                        return result;
-                      },
-                      background: Container(
-                        color: Colors.transparent,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 20.0),
-                          child: Align(alignment: Alignment.centerLeft,
-                              child: Icon(Icons.delete, color: Colors.yellowAccent)),
+                ),
+              );
+          } else
+              return Scaffold(
+                backgroundColor:Provider.of<ToggleTheme>(context).isLightTheme? Colors.white: Colors.grey[850],
+                body: Container(
+                  child: Column(
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            vertical: 100.0, horizontal: 0.0),
+                        child: Column(
+                          children: [
+                            Text(
+                              'NoteBook',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 45.0,
+                                color: Colors.yellowAccent,
+                                letterSpacing: 1.5,
+                              ),
+                            ),
+                            SizedBox(height: 20.0,),
+                            Text(
+                              '${noteNo()} notes',
+                              style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 20.0,
+                              color:Provider.of<ToggleTheme>(context).isLightTheme? Colors.grey[850]: Colors.white,
+                            ),
+                            )
+                          ],
                         ),
                       ),
-                      child: GestureDetector(
-                        onTap: (){Navigator.pushNamed(context, '/Notes', arguments: this.noteList![i]);},
-                        child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          padding: const EdgeInsets.all(8.0),
-                          margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.all(Radius.circular(10.0))
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: Text(
-                                  '${noteList![i].title}',
-                                  style: TextStyle(
-                                    color: Colors.grey[850],
-                                    fontSize: 19.0,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: Text(
-                                  '${noteList![i].content}',
-                                  style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontSize: 17.0,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: Text(
-                                  formatDateTime(noteList![i].dateUpdated),
-                                  style: TextStyle(
-                                    color: Colors.grey[850],
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          Expanded(child: Container()),
+                          SelectButton(),
+                        ],
                       ),
-                    );
-                  }
-              ),
-            )
-          ],
-        ),
-      ),
-      floatingActionButton:
-      FloatingActionButton(
-        heroTag: "btn2",
-        tooltip: 'Create Note',
-        backgroundColor: Colors.yellowAccent,
-        onPressed: (){
-          Navigator.pushNamed(context, '/Notes', arguments: null);
-        },
-        child: Icon(
-          Icons.edit,
-          color: Colors.grey[850],
-        ),
-      ),
+                      Expanded(
+                        child: ListView.builder(
+                            itemCount: noteList!.length,
+                            itemBuilder: (_, i) {
+                              return Dismissible(
+                                key: ValueKey(noteList![i].noteId),
+                                direction: DismissDirection.startToEnd,
+                                onDismissed:(DismissDirection direction){ setState((){noteList!.removeAt(i);});},
+                                confirmDismiss: (direction) async {
+                                  final result = await showDialog(
+                                      context: context,
+                                      builder: (_) =>
+                                          deleteDialog(noteList![i].noteId!)
+                                  );
+                                  return result;
+                                },
+                                background: Container(
+                                  color: Colors.transparent,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 20.0),
+                                    child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Icon(Icons.delete,
+                                            color: Colors.yellowAccent)),
+                                  ),
+                                ),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.pushNamed(context, '/Notes',
+                                        arguments: this.noteList![i]);
+                                  },
+                                  child: Container(
+                                    width: MediaQuery.of(context).size.width,
+                                    height: 90.0,
+                                    padding: const EdgeInsets.all(8.0),
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 5.0, horizontal: 10.0),
+                                    decoration: BoxDecoration(
+                                        color:Provider.of<ToggleTheme>(context).isLightTheme? Colors.grey[850]: Colors.white,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(10.0))
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(4.0),
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                '${noteList![i].title}',
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  color:Provider.of<ToggleTheme>(context).isLightTheme? Colors.white: Colors.grey[850],
+                                                  fontSize: 19.0,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(4.0),
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                '${noteList![i].content}',
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                style: TextStyle(
+                                                  color:Provider.of<ToggleTheme>(context).isLightTheme? Colors.white: Colors.grey[850],
+                                                  fontSize: 17.0,
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(4.0),
+                                          child: Text(
+                                            formatDateTime(
+                                                noteList![i].dateUpdated),
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                            color:Provider.of<ToggleTheme>(context).isLightTheme? Colors.white: Colors.grey[850],
+                                              fontSize: 16.0,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                floatingActionButton: FloatingActionButton(
+                  heroTag: "btn2",
+                  tooltip: 'Create Note',
+                  backgroundColor: Colors.yellowAccent,
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/Notes', arguments: null);
+                  },
+                  child: Icon(
+                    Icons.edit,
+                    color: Colors.grey[850],
+                  ),
+                ),
+              );
+        }else
+          return Scaffold(
+              backgroundColor:Provider.of<ToggleTheme>(context).isLightTheme? Colors.white: Colors.grey[850],
+              body:Center(
+                child: Text('An error occurred')
+              )
+          );
+      }
     );
   }
 }
