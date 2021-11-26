@@ -33,7 +33,7 @@ class _HomeState extends State<Home> {
 
 
   Future loadNotes() async{
-    final noteListt = await DatabaseHelper.instance.getNotes();
+    List<Note>? noteListt = await DatabaseHelper.instance.getNotes();
     noteList = noteListt ?? [];
   }
   int noteNo(){
@@ -87,7 +87,7 @@ class _HomeState extends State<Home> {
       builder: (context, snapshot){
         if(snapshot.connectionState == ConnectionState.waiting){
           return Scaffold(
-              backgroundColor:Provider.of<ToggleTheme>(context).isLightTheme? Colors.white: Colors.grey[850],
+              backgroundColor:Provider.of<ToggleTheme>(context).isLightTheme? Colors.grey[300]: Colors.grey[850],
             body:Center(
               child: CircularProgressIndicator()
             )
@@ -136,7 +136,7 @@ class _HomeState extends State<Home> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 45.0,
-                                color: Colors.yellowAccent,
+                                color: Colors.deepOrange,
                                 letterSpacing: 1.5,
                               ),
                             ),
@@ -166,7 +166,11 @@ class _HomeState extends State<Home> {
                               return Dismissible(
                                 key: ValueKey(noteList![i].noteId),
                                 direction: DismissDirection.startToEnd,
-                                onDismissed:(DismissDirection direction){ setState((){noteList!.removeAt(i);});},
+                                onDismissed:(DismissDirection direction){
+                                  if (mounted){
+                                    setState((){noteList!.removeAt(i);});
+                                  }
+                                  },
                                 confirmDismiss: (direction) async {
                                   final result = await showDialog(
                                       context: context,
@@ -182,7 +186,7 @@ class _HomeState extends State<Home> {
                                     child: Align(
                                         alignment: Alignment.centerLeft,
                                         child: Icon(Icons.delete,
-                                            color: Colors.yellowAccent)),
+                                            color: Colors.deepOrange)),
                                   ),
                                 ),
                                 child: GestureDetector(
@@ -195,9 +199,9 @@ class _HomeState extends State<Home> {
                                     height: 90.0,
                                     padding: const EdgeInsets.all(8.0),
                                     margin: const EdgeInsets.symmetric(
-                                        vertical: 5.0, horizontal: 10.0),
+                                        vertical: 3.0, horizontal: 10.0),
                                     decoration: BoxDecoration(
-                                        color:Provider.of<ToggleTheme>(context).isLightTheme? Colors.grey[850]: Colors.white,
+                                        color:Provider.of<ToggleTheme>(context).isLightTheme? Colors.grey[200]: Colors.grey[800],
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(10.0))
                                     ),
@@ -209,14 +213,16 @@ class _HomeState extends State<Home> {
                                           padding: const EdgeInsets.all(4.0),
                                           child: Row(
                                             children: [
-                                              Text(
-                                                '${noteList![i].title}',
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  color:Provider.of<ToggleTheme>(context).isLightTheme? Colors.white: Colors.grey[850],
-                                                  fontSize: 19.0,
-                                                  fontWeight: FontWeight.w600,
+                                              Flexible(
+                                                child: Text(
+                                                  '${noteList![i].title}',
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                    color:Provider.of<ToggleTheme>(context).isLightTheme? Colors.grey[850]: Colors.white,
+                                                    fontSize: 19.0,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
                                                 ),
                                               ),
                                             ],
@@ -226,14 +232,16 @@ class _HomeState extends State<Home> {
                                           padding: const EdgeInsets.all(4.0),
                                           child: Row(
                                             children: [
-                                              Text(
-                                                '${noteList![i].content}',
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 1,
-                                                style: TextStyle(
-                                                  color:Provider.of<ToggleTheme>(context).isLightTheme? Colors.white: Colors.grey[850],
-                                                  fontSize: 17.0,
-                                                  fontWeight: FontWeight.w400,
+                                              Flexible(
+                                                child: Text(
+                                                  '${noteList![i].content}',
+                                                  overflow: TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                  style: TextStyle(
+                                                    color:Provider.of<ToggleTheme>(context).isLightTheme? Colors.grey[700]: Colors.grey[400],
+                                                    fontSize: 17.0,
+                                                    fontWeight: FontWeight.w400,
+                                                  ),
                                                 ),
                                               ),
                                             ],
@@ -246,7 +254,7 @@ class _HomeState extends State<Home> {
                                                 noteList![i].dateUpdated),
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
-                                            color:Provider.of<ToggleTheme>(context).isLightTheme? Colors.white: Colors.grey[850],
+                                              color:Provider.of<ToggleTheme>(context).isLightTheme? Colors.grey[700]: Colors.grey[300],
                                               fontSize: 16.0,
                                               fontWeight: FontWeight.w400,
                                             ),
@@ -266,13 +274,13 @@ class _HomeState extends State<Home> {
                 floatingActionButton: FloatingActionButton(
                   heroTag: "btn2",
                   tooltip: 'Create Note',
-                  backgroundColor: Colors.yellowAccent,
+                  backgroundColor: Provider.of<ToggleTheme>(context).isLightTheme? Colors.white: Colors.grey[800],
                   onPressed: () {
                     Navigator.pushNamed(context, '/Notes', arguments: null);
                   },
                   child: Icon(
                     Icons.edit,
-                    color: Colors.grey[850],
+                    color: Colors.deepOrange,
                   ),
                 ),
               );

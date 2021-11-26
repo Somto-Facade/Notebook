@@ -95,18 +95,20 @@ class _NotepadState extends State<Notepad> {
     return Scaffold(
       backgroundColor:Provider.of<ToggleTheme>(context).isLightTheme? Colors.white: Colors.grey[850],
       appBar: AppBar(
+        backgroundColor: Provider.of<ToggleTheme>(context).isLightTheme? Colors.grey[100] : Colors.grey[800],
+        toolbarHeight: 80.0,
         title: TextField(
           keyboardType: TextInputType.multiline,
           maxLines: null,
           controller: _titleController,
           onChanged: (value){updateTitle();},
           cursorHeight: 22.0,
-          cursorColor: Colors.grey[800],
+          cursorColor:Provider.of<ToggleTheme>(context).isLightTheme? Colors.grey[800]: Colors.grey[300],
           decoration: InputDecoration(
               border: InputBorder.none,
               hintText: 'Title',
               hintStyle: TextStyle(
-                  color: Colors.grey[800]
+                color:Provider.of<ToggleTheme>(context).isLightTheme? Colors.grey: Colors.grey[400],
               )
           ),
           style: TextStyle(
@@ -118,17 +120,18 @@ class _NotepadState extends State<Notepad> {
         ),
       ),
       body:Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(10.0),
         child: TextField(
           keyboardType: TextInputType.multiline,
           maxLines: null,
           controller: _contentController,
           onChanged: (value){updateContent();},
-            cursorHeight: 22.0,
+            cursorHeight: 24.0,
+          cursorColor:Provider.of<ToggleTheme>(context).isLightTheme? Colors.grey[800]: Colors.grey[300],
           decoration: InputDecoration(
-              hintText: 'Type in Something...',
+              hintText: '  Type in Something...',
               hintStyle: TextStyle(
-                  color: Colors.grey[500]
+                color:Provider.of<ToggleTheme>(context).isLightTheme? Colors.grey: Colors.grey[400],
               ),
               border: InputBorder.none,
           ),
@@ -141,10 +144,10 @@ class _NotepadState extends State<Notepad> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.yellowAccent,
+        backgroundColor: Provider.of<ToggleTheme>(context).isLightTheme? Colors.white : Colors.grey[800],
         onPressed: () {saveNote(); },
         child: Icon(Icons.save,
-          color:Provider.of<ToggleTheme>(context).isLightTheme? Colors.white: Colors.grey[850],),
+          color: Colors.deepOrange),
       ),
     );
   }

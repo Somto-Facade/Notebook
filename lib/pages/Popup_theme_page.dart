@@ -52,7 +52,7 @@ class _SelectButtonState extends State<SelectButton> {
       },
       child: Icon(
         Icons.settings,
-        color: Colors.yellowAccent,
+        color: Colors.deepOrange,
       ),
     );
   }
